@@ -107,7 +107,6 @@ class FactoryListener implements Listener
         $item = $event->getItem();
         (new PlayerTagUpdateEvent($player, new ScoreTag("scorehud.item_name", $item->getName())))->call();
         (new PlayerTagUpdateEvent($player, new ScoreTag("scorehud.item_id", (string)$item->getTypeId())))->call();
-        (new PlayerTagUpdateEvent($player, new ScoreTag("scorehud.item_meta", (string)$item->getMeta())))->call();
         (new PlayerTagUpdateEvent($player, new ScoreTag("scorehud.item_count", (string)$item->getCount())))->call();
     }
 }
