@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -45,13 +46,6 @@ use pocketmine\player\Player;
 use function is_null;
 
 class EventListener implements Listener {
-
-	/** @var ScoreHud */
-	private $plugin;
-
-	public function __construct(ScoreHud $plugin) {
-		$this->plugin = $plugin;
-	}
 
 	public function onWorldChange(EntityTeleportEvent $event): void {
 		if (!ScoreHudSettings::isMultiWorld()) {

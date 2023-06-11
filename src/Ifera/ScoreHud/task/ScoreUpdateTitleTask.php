@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -40,7 +41,7 @@ use function is_null;
 
 class ScoreUpdateTitleTask extends Task{
 
-	public function __construct(private ScoreHud $plugin){}
+	public function __construct(private readonly ScoreHud $plugin){}
 
 	public function onRun() : void{
 		foreach($this->plugin->getServer()->getOnlinePlayers() as $player){

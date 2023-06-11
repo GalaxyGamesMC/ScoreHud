@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -37,6 +38,7 @@ use Ifera\ScoreHud\ScoreHudSettings;
 use Ifera\ScoreHud\session\PlayerSession;
 use Ifera\ScoreHud\utils\HelperUtils;
 use jackmd\scorefactory\ScoreFactory;
+use jackmd\scorefactory\ScoreFactoryException;
 use function array_count_values;
 use function array_keys;
 use function array_map;
@@ -49,12 +51,12 @@ use function strlen;
 class Scoreboard{
 
 	/** @var string[] */
-	private $formattedLines = [];
+	private array $formattedLines = [];
 
 	public function __construct(
-		private PlayerSession $session,
-		private array $lines = [],
-		private array $tags = []
+		private readonly PlayerSession $session,
+		private array                  $lines = [],
+		private array                  $tags = []
 	) {}
 
 	public function getSession(): PlayerSession{
@@ -127,7 +129,10 @@ class Scoreboard{
 		return $processedTags;
 	}
 
-	public function handleSingleTagUpdate(ScoreTag $tag): self{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public function handleSingleTagUpdate(ScoreTag $tag): self{
 		$player = $this->session->getPlayer();
 
 		if(!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())){
@@ -191,7 +196,10 @@ class Scoreboard{
 		return $this;
 	}
 
-	public function display(): self{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public function display(): self{
 		$player = $this->session->getPlayer();
 
 		if(!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())){

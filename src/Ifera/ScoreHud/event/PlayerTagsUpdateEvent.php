@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -43,16 +44,10 @@ use pocketmine\player\Player;
  * @see PlayerTagUpdateEvent
  */
 class PlayerTagsUpdateEvent extends PlayerEvent{
-
-	/** @var ScoreTag[] */
-	private array $tags = [];
-
-	/**
-	 * @param ScoreTag[] $tags
-	 */
-	public function __construct(Player $player, array $tags){
-		$this->tags = $tags;
-
+	public function __construct(
+        Player $player,
+        private array $tags
+    ){
 		parent::__construct($player);
 	}
 

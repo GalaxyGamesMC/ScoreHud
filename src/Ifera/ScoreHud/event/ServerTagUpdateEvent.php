@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -48,7 +49,7 @@ use Ifera\ScoreHud\scoreboard\ScoreTag;
  */
 class ServerTagUpdateEvent extends ScoreHudEvent{
 
-	public function __construct(private ScoreTag $tag){
+	public function __construct(private readonly ScoreTag $tag){
 		parent::__construct();
 	}
 

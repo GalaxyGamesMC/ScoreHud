@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -43,15 +44,12 @@ use Ifera\ScoreHud\scoreboard\ScoreTag;
  */
 class ServerTagsUpdateEvent extends ScoreHudEvent{
 
-	/** @var ScoreTag[] */
-	private array $tags = [];
-
 	/**
 	 * @param ScoreTag[] $tags
 	 */
-	public function __construct(array $tags){
-		$this->tags = $tags;
-
+	public function __construct(
+        private array $tags
+    ){
 		parent::__construct();
 	}
 

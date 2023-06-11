@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -40,22 +41,19 @@ class ScoreHudSettings{
 
 	public const PREFIX = "§8[§l§6S§eH§r§8]§r ";
 
-	private static ?ScoreHud $plugin;
 	private static ?Config $config;
-	private static ?Config $scorehud;
+	private static ?Config $scoreHud;
 
 	private function __construct(){}
 
 	public static function init(ScoreHud $plugin): void{
-		self::$plugin = $plugin;
 		self::$config = $plugin->getConfig();
-		self::$scorehud = $plugin->getScoreConfig();
+		self::$scoreHud = $plugin->getScoreConfig();
 	}
 
 	public static function destroy(): void{
-		self::$plugin = null;
 		self::$config = null;
-		self::$scorehud = null;
+		self::$scoreHud = null;
 	}
 
 	/*
@@ -63,7 +61,7 @@ class ScoreHudSettings{
 	 */
 
 	public static function getLineUpdateMode(): string{
-		return (string) strtolower(self::$config->getNested("line-update-mode", "single"));
+		return strtolower(self::$config->getNested("line-update-mode", "single"));
 	}
 
 	public static function isSingleLineUpdateMode(): bool{
@@ -71,19 +69,19 @@ class ScoreHudSettings{
 	}
 
 	public static function isTagFactoryEnabled(): bool {
-		return (bool) self::$config->getNested("tag-factory.enable", true);
+		return boolval(self::$config->getNested("tag-factory.enable", true));
 	}
 
 	public static function getTagFactoryUpdatePeriod(): int {
-		return (int) self::$config->getNested("tag-factory.update-period", 5);
+		return intval(self::$config->getNested("tag-factory.update-period", 5));
 	}
 
 	public static function areMemoryTagsEnabled(): bool {
-		return (bool) self::$config->getNested("tag-factory.enable-memory-tags", false);
+		return boolval(self::$config->getNested("tag-factory.enable-memory-tags", false));
 	}
 
 	public static function isMultiWorld(): bool{
-		return (bool) self::$config->getNested("multi-world.active", false);
+		return boolval(self::$config->getNested("multi-world.active", false));
 	}
 
 	/**
@@ -123,34 +121,34 @@ class ScoreHudSettings{
 	 */
 
 	public static function areFlickeringTitlesEnabled(): bool{
-		return (bool) self::$scorehud->getNested("titles.flicker", false);
+		return (bool) self::$scoreHud->getNested("titles.flicker", false);
 	}
 
 	public static function getFlickerRate(): int{
-		return ((int) self::$scorehud->getNested("titles.period", 5)) * 20;
+		return intval(self::$scoreHud->getNested("titles.period", 5)) * 20;
 	}
 
 	public static function getTitles(): array{
-		return (array) self::$scorehud->getNested("titles.lines", []);
+		return (array) self::$scoreHud->getNested("titles.lines", []);
 	}
 
 	public static function getTitle(): string{
-		return (string) self::$scorehud->getNested("titles.title", "§l§aServer §dName");
+		return strval(self::$scoreHud->getNested("titles.title", "§l§aServer §dName"));
 	}
 
 	public static function getDefaultBoard(): array{
-		return (array) self::$scorehud->get("default-board", []);
+		return (array) self::$scoreHud->get("default-board", []);
 	}
 
 	/**
 	 * Will return an array indexed by world name with their score lines.
 	 */
 	public static function getScoreboards(): array{
-		return (array) self::$scorehud->get("scoreboards", []);
+		return (array) self::$scoreHud->get("scoreboards", []);
 	}
 
 	public static function getScoreboard(string $world): array{
-		return (array) self::$scorehud->getNested("scoreboards." . $world . ".lines", []);
+		return (array) self::$scoreHud->getNested("scoreboards." . $world . ".lines", []);
 	}
 
 	public static function worldExists(string $world): bool{

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -39,6 +40,7 @@ use Ifera\ScoreHud\ScoreHud;
 use Ifera\ScoreHud\ScoreHudSettings;
 use Ifera\ScoreHud\utils\HelperUtils;
 use jackmd\scorefactory\ScoreFactory;
+use jackmd\scorefactory\ScoreFactoryException;
 use pocketmine\player\Player;
 use function is_null;
 
@@ -47,11 +49,10 @@ class PlayerSession{
 	/** @var ScoreHud */
 	private ScoreHud $plugin;
 	/** @var Scoreboard|null */
-	private ?Scoreboard $scoreboard;
+	private ?Scoreboard $scoreboard = null;
 
-	public function __construct(private Player $player){
+	public function __construct(private readonly Player $player){
 		$this->plugin = ScoreHud::getInstance();
-		$this->scoreboard = null;
 	}
 
 	public function getPlayer(): Player{
@@ -66,7 +67,10 @@ class PlayerSession{
 		$this->scoreboard = $scoreboard;
 	}
 
-	public function handle(string $world = null, bool $calledFromTask = false): void{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public function handle(string $world = null, bool $calledFromTask = false): void{
 		$player = $this->player;
 
 		if(!$player->isOnline() || HelperUtils::isDisabled($player)){
@@ -74,17 +78,12 @@ class PlayerSession{
 		}
 
 		$world = $world ?? $player->getWorld()->getFolderName();
-
-		// remove scoreboard if player is in a world where scoreboard is disabled
 		if(ScoreHudSettings::isInDisabledWorld($world)){
 			ScoreFactory::removeObjective($player);
-
 			return;
 		}
 
-		// check for multi world board first
 		if(ScoreHudSettings::isMultiWorld()){
-			// construct the board for this level and send
 			if(ScoreHudSettings::worldExists($world)){
 				$this->plugin->setScore($player, $calledFromTask);
 
@@ -95,27 +94,22 @@ class PlayerSession{
 
 				return;
 			}
-
-			// use the default board since the scoreboard for the world is unknown
 			if(ScoreHudSettings::useDefaultBoard()){
 				$this->constructDefaultBoard($calledFromTask);
 
 				return;
 			}
-
-			// no scoreboard is to be displayed
 			ScoreFactory::removeObjective($player);
 
 			return;
 		}
-
-		// construct the default board since multi world support is not enabled
 		$this->constructDefaultBoard($calledFromTask);
 	}
 
 	/**
 	 * Used for handling default scoreboard
-	 */
+     * @throws ScoreFactoryException
+     */
 	private function constructDefaultBoard(bool $calledFromTask): void{
 		$this->plugin->setScore($this->player, $calledFromTask);
 
@@ -131,7 +125,10 @@ class PlayerSession{
 		$this->scoreboard = $scoreboard;
 	}
 
-	public function close(): void{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public function close(): void{
 		HelperUtils::destroy($this->player);
 		ScoreFactory::removeObjective($this->player, true);
 	}

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -37,7 +38,7 @@ use pocketmine\player\Player;
 
 class HelperUtils{
 
-	private static $players = [];
+	private static array $players = [];
 
 	public static function disable(Player $player): void{
 		self::$players[$player->getUniqueId()->toString()] = $player;

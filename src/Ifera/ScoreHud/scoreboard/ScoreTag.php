@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -36,8 +37,8 @@ namespace Ifera\ScoreHud\scoreboard;
 class ScoreTag {
 
 	public function __construct(
-		private string $name,
-		private string $value = ""
+		private readonly string $name,
+		private string          $value = ""
 	) {}
 
 	public function getId(): string {

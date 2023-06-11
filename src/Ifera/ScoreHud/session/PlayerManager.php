@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -33,6 +34,7 @@ declare(strict_types = 1);
 
 namespace Ifera\ScoreHud\session;
 
+use jackmd\scorefactory\ScoreFactoryException;
 use pocketmine\player\Player;
 
 class PlayerManager{
@@ -40,12 +42,18 @@ class PlayerManager{
 	/** @var PlayerSession[] */
 	private static $sessions = [];
 
-	public static function create(Player $player): void{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public static function create(Player $player): void{
 		self::$sessions[$player->getUniqueId()->toString()] = $session = new PlayerSession($player);
 		$session->handle();
 	}
 
-	public static function destroy(Player $player): void{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public static function destroy(Player $player): void{
 		if(!$player->isOnline()){
 			return;
 		}
@@ -73,7 +81,10 @@ class PlayerManager{
 		return self::$sessions;
 	}
 
-	public static function destroyAll(): void{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public static function destroyAll(): void{
 		foreach(self::$sessions as $session){
 			self::destroy($session->getPlayer());
 		}

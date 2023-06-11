@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 namespace Ifera\ScoreHud\factory\listener;
@@ -17,7 +18,7 @@ use function round;
 class TagResolveListener implements Listener {
 
 	public function __construct(
-		private ScoreHud $plugin
+		private readonly ScoreHud $plugin
 	) {}
 
 	public function onTagResolve(TagsResolveEvent $event) {
@@ -28,114 +29,35 @@ class TagResolveListener implements Listener {
 
 		if ($tags[0] !== 'scorehud' || count($tags) < 2) return;
 
-		switch ($tags[1]) {
-			case "name":
-			case "real_name":
-				$value = $player->getName();
-			break;
-
-			case "display_name":
-				$value = $player->getDisplayName();
-			break;
-
-			case "online":
-				$value = count($player->getServer()->getOnlinePlayers());
-			break;
-
-			case "max_online":
-				$value = $player->getServer()->getMaxPlayers();
-			break;
-
-			case "item_name":
-				$value = $player->getInventory()->getItemInHand()->getName();
-			break;
-
-			case "item_id":
-				$value = $player->getInventory()->getItemInHand()->getId();
-			break;
-
-			case "item_meta":
-				$value = $player->getInventory()->getItemInHand()->getMeta();
-			break;
-
-			case "item_count":
-				$value = $player->getInventory()->getItemInHand()->getCount();
-			break;
-
-			case "x":
-				$value = (int) $player->getPosition()->getX();
-			break;
-
-			case "y":
-				$value = (int) $player->getPosition()->getY();
-			break;
-
-			case "z":
-				$value = (int) $player->getPosition()->getZ();
-			break;
-
-			case "load":
-				$value = $player->getServer()->getTickUsage();
-			break;
-
-			case "tps":
-				$value = $player->getServer()->getTicksPerSecond();
-			break;
-
-			case "level_name":
-			case "world_name":
-				$value = $player->getWorld()->getDisplayName();
-			break;
-
-			case "level_folder_name":
-			case "world_folder_name":
-				$value = $player->getWorld()->getFolderName();
-			break;
-
-			case "ip":
-				$value = $player->getNetworkSession()->getIp();
-			break;
-
-			case "ping":
-				$value = $player->getNetworkSession()->getPing();
-			break;
-
-			case "health":
-				$value = (int) $player->getHealth();
-			break;
-
-			case "max_health":
-				$value = $player->getMaxHealth();
-			break;
-
-			case "xp_level":
-				$value = (int) $player->getXpManager()->getXpLevel();
-			break;
-
-			case "xp_progress":
-				$value = (int) $player->getXpManager()->getXpProgress();
-			break;
-
-			case "xp_remainder":
-				$value = (int) $player->getXpManager()->getRemainderXp();
-			break;
-
-			case "xp_current_total":
-				$value = (int) $player->getXpManager()->getCurrentTotalXp();
-			break;
-
-			case "time":
-				$value = date(ScoreHudSettings::getTimeFormat());
-			break;
-
-			case "date":
-				$value = date(ScoreHudSettings::getDateFormat());
-			break;
-
-			case "world_player_count":
-				$value = count($player->getWorld()->getPlayers());
-			break;
-		}
+        $value = match ($tags[1]) {
+            "name", "real_name" => $player->getName(),
+            "display_name" => $player->getDisplayName(),
+            "online" => count($player->getServer()->getOnlinePlayers()),
+            "max_online" => $player->getServer()->getMaxPlayers(),
+            "item_name" => $player->getInventory()->getItemInHand()->getName(),
+            "item_id" => $player->getInventory()->getItemInHand()->getId(),
+            "item_meta" => $player->getInventory()->getItemInHand()->getMeta(),
+            "item_count" => $player->getInventory()->getItemInHand()->getCount(),
+            "x" => (int)$player->getPosition()->getX(),
+            "y" => (int)$player->getPosition()->getY(),
+            "z" => (int)$player->getPosition()->getZ(),
+            "load" => $player->getServer()->getTickUsage(),
+            "tps" => $player->getServer()->getTicksPerSecond(),
+            "level_name", "world_name" => $player->getWorld()->getDisplayName(),
+            "level_folder_name", "world_folder_name" => $player->getWorld()->getFolderName(),
+            "ip" => $player->getNetworkSession()->getIp(),
+            "ping" => $player->getNetworkSession()->getPing(),
+            "health" => (int)$player->getHealth(),
+            "max_health" => $player->getMaxHealth(),
+            "xp_level" => (int)$player->getXpManager()->getXpLevel(),
+            "xp_progress" => (int)$player->getXpManager()->getXpProgress(),
+            "xp_remainder" => (int)$player->getXpManager()->getRemainderXp(),
+            "xp_current_total" => (int)$player->getXpManager()->getCurrentTotalXp(),
+            "time" => date(ScoreHudSettings::getTimeFormat()),
+            "date" => date(ScoreHudSettings::getDateFormat()),
+            "world_player_count" => count($player->getWorld()->getPlayers()),
+            default => null
+        };
 
 		if (ScoreHudSettings::areMemoryTagsEnabled()) {
 			$rUsage = Process::getRealMemoryUsage();
@@ -146,27 +68,14 @@ class TagResolveListener implements Listener {
 				$globalMemory = number_format(round($this->plugin->getServer()->getConfigGroup()->getProperty("memory.global-limit"), 2), 2) . " MB";
 			}
 
-			switch ($tags[1]) {
-				case "memory_main_thread":
-					$value = number_format(round(($mUsage[0] / 1024) / 1024, 2), 2) . " MB";
-				break;
-
-				case "memory_total":
-					$value = number_format(round(($mUsage[1] / 1024) / 1024, 2), 2) . " MB";
-				break;
-
-				case "memory_virtual":
-					$value = number_format(round(($mUsage[2] / 1024) / 1024, 2), 2) . " MB";
-				break;
-
-				case "memory_heap":
-					$value = number_format(round(($rUsage[0] / 1024) / 1024, 2), 2) . " MB";
-				break;
-
-				case "memory_global":
-					$value = $globalMemory;
-				break;
-			}
+			$value = match ($tags[1]) {
+                "memory_main_thread" => number_format(round(($mUsage[0] / 1024) / 1024, 2), 2) . " MB",
+                "memory_total" => number_format(round(($mUsage[1] / 1024) / 1024, 2), 2) . " MB",
+                "memory_virtual" => number_format(round(($mUsage[2] / 1024) / 1024, 2), 2) . " MB",
+                "memory_heap" => number_format(round(($rUsage[0] / 1024) / 1024, 2), 2) . " MB",
+                "memory_global" => $globalMemory,
+                default => null, // or handle the case when the tag is not recognized
+            };
 		}
 
 		$tag->setValue((string) $value);

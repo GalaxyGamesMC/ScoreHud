@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 namespace Ifera\ScoreHud\event;
@@ -8,12 +9,10 @@ use pocketmine\player\Player;
 
 abstract class PlayerScoreTagEvent extends PlayerEvent{
 
-	/** @var ScoreTag */
-	protected ScoreTag $tag;
-
-	public function __construct(Player $player, ScoreTag $tag){
-		$this->tag = $tag;
-
+	public function __construct(
+        Player $player,
+        protected ScoreTag $tag
+    ){
 		parent::__construct($player);
 	}
 

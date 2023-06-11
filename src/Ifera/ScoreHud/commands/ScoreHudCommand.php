@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 /**
@@ -38,6 +39,7 @@ use Ifera\ScoreHud\ScoreHudSettings;
 use Ifera\ScoreHud\session\PlayerManager;
 use Ifera\ScoreHud\utils\HelperUtils;
 use jackmd\scorefactory\ScoreFactory;
+use jackmd\scorefactory\ScoreFactoryException;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
@@ -62,34 +64,33 @@ class ScoreHudCommand extends Command implements PluginOwned{
 		$this->owningPlugin = $plugin;
 	}
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string        $commandLabel
-	 * @param array         $args
-	 * @return bool|mixed
-	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args){
+    /**
+     * @param CommandSender $sender
+     * @param string $commandLabel
+     * @param array $args
+     * @return void
+     * @throws ScoreFactoryException
+     */
+    public function execute(CommandSender $sender, string $commandLabel, array $args): void
+    {
 		if(!$this->testPermission($sender)){
-			return true;
+			return;
 		}
 
 		if(!$sender instanceof Player){
 			$sender->sendMessage(ScoreHudSettings::PREFIX . "§cYou can only use this command in-game.");
-
-			return false;
+			return;
 		}
 
 		if(!isset($args[0])){
 			$sender->sendMessage(ScoreHudSettings::PREFIX . "§cUsage: /scorehud <on|off|about|help>");
-
-			return false;
+			return;
 		}
 
 		switch($args[0]){
 			case "about":
 				$sender->sendMessage(ScoreHudSettings::PREFIX . "§6Score§eHud §av" . $this->owningPlugin->getDescription()->getVersion() . "§a. Plugin by §dIfera§a. Contact on §bTwitter: @ifera_tr §aor §bDiscord: Ifera#3717§a.");
 			break;
-
 			case "on":
 				if(HelperUtils::isDisabled($sender)){
 					HelperUtils::destroy($sender);
@@ -100,7 +101,6 @@ class ScoreHudCommand extends Command implements PluginOwned{
 					$sender->sendMessage(ScoreHudSettings::PREFIX . "§cScoreHud is already enabled for you.");
 				}
 			break;
-
 			case "off":
 				if(!HelperUtils::isDisabled($sender)){
 					ScoreFactory::removeObjective($sender);
@@ -111,13 +111,10 @@ class ScoreHudCommand extends Command implements PluginOwned{
 					$sender->sendMessage(ScoreHudSettings::PREFIX . "§cScoreHud is already disabled for you.");
 				}
 			break;
-
 			case "help":
 			default:
 				$sender->sendMessage(ScoreHudSettings::PREFIX . "§cUsage: /scorehud <on|off|about|help>");
 			break;
 		}
-
-		return false;
 	}
 }

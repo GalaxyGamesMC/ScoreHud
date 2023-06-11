@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 namespace Ifera\ScoreHud\factory;
@@ -15,7 +16,8 @@ use pocketmine\utils\Process;
 
 class TagsFactory {
 
-	public static function init(ScoreHud $plugin) {
+	public static function init(ScoreHud $plugin): void
+    {
 		$server = $plugin->getServer();
 
 		$server->getPluginManager()->registerEvents(new FactoryListener($plugin), $plugin);

@@ -40,10 +40,9 @@ use Ifera\ScoreHud\session\PlayerSessionHandler;
 use Ifera\ScoreHud\task\ScoreUpdateTitleTask;
 use Ifera\ScoreHud\utils\HelperUtils;
 use Ifera\ScoreHud\utils\TitleUtils;
-use JackMD\ConfigUpdater\ConfigUpdater;
 use Ifera\ScoreHud\utils\Utils;
 use jackmd\scorefactory\ScoreFactory;
-use JackMD\UpdateNotifier\UpdateNotifier;
+use jackmd\scorefactory\ScoreFactoryException;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -56,14 +55,7 @@ class ScoreHud extends PluginBase{
 	private const CONFIG_VERSION = 11;
 	private const SCOREHUD_VERSION = 3;
 
-	private ?Config $scoreConfig;
-
-	/**
-	 * @return ScoreHud|null
-	 */
-	public static function getInstance(): ?ScoreHud{
-		return self::$instance;
-	}
+	private ?Config $scoreConfig = null;
 
 	public function onLoad(): void{
 		self::setInstance($this);
@@ -76,10 +68,7 @@ class ScoreHud extends PluginBase{
 			return;
 		}
 
-		UpdateNotifier::checkUpdate($this->getDescription()->getName(), $this->getDescription()->getVersion());
 		ScoreHudSettings::init($this);
-
-		$this->validateConfigs();
 
 		if(!$this->canLoad()){
 			return;
@@ -98,7 +87,7 @@ class ScoreHud extends PluginBase{
 		}
 
 		$this->getServer()->getPluginManager()->registerEvents(new PlayerSessionHandler(), $this);
-		$this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
+		$this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
 
 		$this->getServer()->getCommandMap()->register("scorehud", new ScoreHudCommand($this));
 
@@ -106,12 +95,8 @@ class ScoreHud extends PluginBase{
 	}
 
 	public function onDisable(): void{
-		$this->scoreConfig = null;
-
 		ScoreHudSettings::destroy();
 		PlayerManager::destroyAll();
-
-		self::$instance = null;
 	}
 
 	private function loadConfigs(): void{
@@ -119,25 +104,6 @@ class ScoreHud extends PluginBase{
 
 		$this->saveResource("scorehud.yml");
 		$this->scoreConfig = new Config($this->getDataFolder() . "scorehud.yml", Config::YAML);
-	}
-
-	private function validateConfigs(): void{
-		$updated = false;
-
-		if(ConfigUpdater::checkUpdate($this, $this->getConfig(), "config-version", self::CONFIG_VERSION)){
-			$updated = true;
-			$this->reloadConfig();
-		}
-
-		if(ConfigUpdater::checkUpdate($this, $this->scoreConfig, "scorehud-version", self::SCOREHUD_VERSION)){
-			$updated = true;
-			$this->scoreConfig = new Config($this->getDataFolder() . "scorehud.yml", Config::YAML);
-		}
-
-		if($updated){
-			ScoreHudSettings::destroy();
-			ScoreHudSettings::init($this);
-		}
 	}
 
 	private function canLoad(): bool{
@@ -179,7 +145,10 @@ class ScoreHud extends PluginBase{
 		return $this->scoreConfig;
 	}
 
-	public function setScore(Player $player, bool $calledFromTask): void{
+    /**
+     * @throws ScoreFactoryException
+     */
+    public function setScore(Player $player, bool $calledFromTask): void{
 		if(!$player->isOnline()){
 			return;
 		}
