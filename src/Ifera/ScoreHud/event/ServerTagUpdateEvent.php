@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -47,13 +47,16 @@ use Ifera\ScoreHud\scoreboard\ScoreTag;
  * Call this event, pass the tag that needs updating into the
  * constructor and let ScoreHud handle the rest.
  */
-class ServerTagUpdateEvent extends ScoreHudEvent{
+class ServerTagUpdateEvent extends ScoreHudEvent
+{
 
-	public function __construct(private readonly ScoreTag $tag){
-		parent::__construct();
-	}
+    public function __construct(private readonly ScoreTag $tag)
+    {
+        parent::__construct();
+    }
 
-	public function getTag(): ScoreTag{
-		return $this->tag;
-	}
+    public function getTag(): ScoreTag
+    {
+        return $this->tag;
+    }
 }

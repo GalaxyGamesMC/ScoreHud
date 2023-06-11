@@ -50,8 +50,8 @@ multi-world:
 # If you wish to not have any disabled worlds then set the key as shown below.
 # disabled-worlds: []
 disabled-worlds:
-- "world 1"
-- "world 2"
+  - "world 1"
+  - "world 2"
 
 # Change how time is displayed on your server.
 time:

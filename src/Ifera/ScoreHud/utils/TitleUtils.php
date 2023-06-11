@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -36,27 +36,29 @@ namespace Ifera\ScoreHud\utils;
 
 use Ifera\ScoreHud\ScoreHudSettings;
 
-class TitleUtils{
+class TitleUtils
+{
 
-	private static int $titleIndex = 0;
+    private static int $titleIndex = 0;
 
-	public static function getTitle(bool $calledFromTask = false): string{
-		$title = ScoreHudSettings::getTitle();
+    public static function getTitle(bool $calledFromTask = false): string
+    {
+        $title = ScoreHudSettings::getTitle();
 
-		if(ScoreHudSettings::areFlickeringTitlesEnabled()){
-			$titles = ScoreHudSettings::getTitles();
+        if (ScoreHudSettings::areFlickeringTitlesEnabled()) {
+            $titles = ScoreHudSettings::getTitles();
 
-			if(!isset($titles[self::$titleIndex])){
-				self::$titleIndex = 0;
-			}
+            if (!isset($titles[self::$titleIndex])) {
+                self::$titleIndex = 0;
+            }
 
-			$title = $titles[self::$titleIndex];
+            $title = $titles[self::$titleIndex];
 
-			if($calledFromTask){
-				self::$titleIndex++;
-			}
-		}
+            if ($calledFromTask) {
+                self::$titleIndex++;
+            }
+        }
 
-		return $title;
-	}
+        return $title;
+    }
 }

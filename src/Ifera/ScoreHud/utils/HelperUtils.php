@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -36,19 +36,23 @@ namespace Ifera\ScoreHud\utils;
 
 use pocketmine\player\Player;
 
-class HelperUtils{
+class HelperUtils
+{
 
-	private static array $players = [];
+    private static array $players = [];
 
-	public static function disable(Player $player): void{
-		self::$players[$player->getUniqueId()->toString()] = $player;
-	}
+    public static function disable(Player $player): void
+    {
+        self::$players[$player->getUniqueId()->toString()] = $player;
+    }
 
-	public static function destroy(Player $player): void{
-		unset(self::$players[$player->getUniqueId()->toString()]);
-	}
+    public static function destroy(Player $player): void
+    {
+        unset(self::$players[$player->getUniqueId()->toString()]);
+    }
 
-	public static function isDisabled(Player $player): bool{
-		return isset(self::$players[$player->getUniqueId()->toString()]);
-	}
+    public static function isDisabled(Player $player): bool
+    {
+        return isset(self::$players[$player->getUniqueId()->toString()]);
+    }
 }

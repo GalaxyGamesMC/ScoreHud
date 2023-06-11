@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -39,17 +39,21 @@ use Ifera\ScoreHud\session\PlayerManager;
 use pocketmine\scheduler\Task;
 use function is_null;
 
-class ScoreUpdateTitleTask extends Task{
+class ScoreUpdateTitleTask extends Task
+{
 
-	public function __construct(private readonly ScoreHud $plugin){}
+    public function __construct(private readonly ScoreHud $plugin)
+    {
+    }
 
-	public function onRun() : void{
-		foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-			if(is_null($session = PlayerManager::get($player))){
-				continue;
-			}
+    public function onRun(): void
+    {
+        foreach ($this->plugin->getServer()->getOnlinePlayers() as $player) {
+            if (is_null($session = PlayerManager::get($player))) {
+                continue;
+            }
 
-			$session->handle(null, true);
-		}
-	}
+            $session->handle(null, true);
+        }
+    }
 }

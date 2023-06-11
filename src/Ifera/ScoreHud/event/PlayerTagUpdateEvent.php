@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -46,5 +46,6 @@ namespace Ifera\ScoreHud\event;
  * Call this event, pass the tag that needs updating into the
  * constructor and let ScoreHud handle the rest.
  */
-class PlayerTagUpdateEvent extends PlayerScoreTagEvent{
+class PlayerTagUpdateEvent extends PlayerScoreTagEvent
+{
 }

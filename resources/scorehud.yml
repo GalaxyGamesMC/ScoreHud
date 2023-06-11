@@ -24,10 +24,10 @@ titles:
 
   # Changing titles. Add as many as you desire.
   lines:
-  - "§l§aServer §dName"
-  - "§l§bServer §cName"
-  - "§l§cServer §bName"
-  - "§l§dServer §aName"
+    - "§l§aServer §dName"
+    - "§l§bServer §cName"
+    - "§l§cServer §bName"
+    - "§l§dServer §aName"
 
 # ==================
 # IMPORTANT NOTE:
@@ -52,32 +52,32 @@ titles:
 # in 'scoreboards' key below then set 'multi-world.active' along
 # with 'multi-world.use-default' keys to true in config.yml.
 default-board:
-- ""
-- "§dName: §5{scorehud.name}"
-- ""
-- "§bOnline: §a{scorehud.online} §c/ §d{scorehud.max_online}"
-- ""
-- "§6Please Vote for us!"
+  - ""
+  - "§dName: §5{scorehud.name}"
+  - ""
+  - "§bOnline: §a{scorehud.online} §c/ §d{scorehud.max_online}"
+  - ""
+  - "§6Please Vote for us!"
 
 # If you want to display different scoreboards for every world
 # then set 'multi-world.active' to true in config.yml.
 #
 # After that edit the following to suit your needs.
 scoreboards:
-# EXAMPLE CONFIGURATION:
-# ------------------
-# "world name":    | The name of the world. Enclose it in inverted commas.
-#   lines:         | This key is important. And the plugin won't function without it.
-#   - "Line #1"    | Line number one. You can use any of the above tags.
-#   - "Line #2"    | You can add a maximum of 15 lines.
-#-------------------
+  # EXAMPLE CONFIGURATION:
+  # ------------------
+  # "world name":    | The name of the world. Enclose it in inverted commas.
+  #   lines:         | This key is important. And the plugin won't function without it.
+  #   - "Line #1"    | Line number one. You can use any of the above tags.
+  #   - "Line #2"    | You can add a maximum of 15 lines.
+  #-------------------
   "world":
     lines:
-    - "§dName: §5{scorehud.name}"
-    - "§bOnline: §a{scorehud.online} §c/ §d{scorehud.max_online}"
+      - "§dName: §5{scorehud.name}"
+      - "§bOnline: §a{scorehud.online} §c/ §d{scorehud.max_online}"
   "world 2":
     lines:
-    - "§dName: §5{scorehud.name}"
-    - "§dTPS: §5{scorehud.tps}"
-    - "§bLoad: §a{scorehud.load}"
+      - "§dName: §5{scorehud.name}"
+      - "§dTPS: §5{scorehud.tps}"
+      - "§bLoad: §a{scorehud.load}"
 ...

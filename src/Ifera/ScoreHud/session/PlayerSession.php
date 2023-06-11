@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -44,92 +44,100 @@ use jackmd\scorefactory\ScoreFactoryException;
 use pocketmine\player\Player;
 use function is_null;
 
-class PlayerSession{
+class PlayerSession
+{
 
-	/** @var ScoreHud */
-	private ScoreHud $plugin;
-	/** @var Scoreboard|null */
-	private ?Scoreboard $scoreboard = null;
+    /** @var ScoreHud */
+    private ScoreHud $plugin;
+    /** @var Scoreboard|null */
+    private ?Scoreboard $scoreboard = null;
 
-	public function __construct(private readonly Player $player){
-		$this->plugin = ScoreHud::getInstance();
-	}
+    public function __construct(private readonly Player $player)
+    {
+        $this->plugin = ScoreHud::getInstance();
+    }
 
-	public function getPlayer(): Player{
-		return $this->player;
-	}
+    public function getPlayer(): Player
+    {
+        return $this->player;
+    }
 
-	public function getScoreboard(): ?Scoreboard{
-		return $this->scoreboard;
-	}
+    public function getScoreboard(): ?Scoreboard
+    {
+        return $this->scoreboard;
+    }
 
-	public function setScoreboard(Scoreboard $scoreboard): void{
-		$this->scoreboard = $scoreboard;
-	}
-
-    /**
-     * @throws ScoreFactoryException
-     */
-    public function handle(string $world = null, bool $calledFromTask = false): void{
-		$player = $this->player;
-
-		if(!$player->isOnline() || HelperUtils::isDisabled($player)){
-			return;
-		}
-
-		$world = $world ?? $player->getWorld()->getFolderName();
-		if(ScoreHudSettings::isInDisabledWorld($world)){
-			ScoreFactory::removeObjective($player);
-			return;
-		}
-
-		if(ScoreHudSettings::isMultiWorld()){
-			if(ScoreHudSettings::worldExists($world)){
-				$this->plugin->setScore($player, $calledFromTask);
-
-				$scoreboard = ScoreboardHelper::create($this, $world);
-				$scoreboard->update()->display();
-
-				$this->scoreboard = $scoreboard;
-
-				return;
-			}
-			if(ScoreHudSettings::useDefaultBoard()){
-				$this->constructDefaultBoard($calledFromTask);
-
-				return;
-			}
-			ScoreFactory::removeObjective($player);
-
-			return;
-		}
-		$this->constructDefaultBoard($calledFromTask);
-	}
-
-	/**
-	 * Used for handling default scoreboard
-     * @throws ScoreFactoryException
-     */
-	private function constructDefaultBoard(bool $calledFromTask): void{
-		$this->plugin->setScore($this->player, $calledFromTask);
-
-		if($calledFromTask && !is_null($this->scoreboard)){
-			$this->scoreboard->display();
-
-			return;
-		}
-
-		$scoreboard = ScoreboardHelper::createDefault($this);
-		$scoreboard->update()->display();
-
-		$this->scoreboard = $scoreboard;
-	}
+    public function setScoreboard(Scoreboard $scoreboard): void
+    {
+        $this->scoreboard = $scoreboard;
+    }
 
     /**
      * @throws ScoreFactoryException
      */
-    public function close(): void{
-		HelperUtils::destroy($this->player);
-		ScoreFactory::removeObjective($this->player, true);
-	}
+    public function handle(string $world = null, bool $calledFromTask = false): void
+    {
+        $player = $this->player;
+
+        if (!$player->isOnline() || HelperUtils::isDisabled($player)) {
+            return;
+        }
+
+        $world = $world ?? $player->getWorld()->getFolderName();
+        if (ScoreHudSettings::isInDisabledWorld($world)) {
+            ScoreFactory::removeObjective($player);
+            return;
+        }
+
+        if (ScoreHudSettings::isMultiWorld()) {
+            if (ScoreHudSettings::worldExists($world)) {
+                $this->plugin->setScore($player, $calledFromTask);
+
+                $scoreboard = ScoreboardHelper::create($this, $world);
+                $scoreboard->update()->display();
+
+                $this->scoreboard = $scoreboard;
+
+                return;
+            }
+            if (ScoreHudSettings::useDefaultBoard()) {
+                $this->constructDefaultBoard($calledFromTask);
+
+                return;
+            }
+            ScoreFactory::removeObjective($player);
+
+            return;
+        }
+        $this->constructDefaultBoard($calledFromTask);
+    }
+
+    /**
+     * Used for handling default scoreboard
+     * @throws ScoreFactoryException
+     */
+    private function constructDefaultBoard(bool $calledFromTask): void
+    {
+        $this->plugin->setScore($this->player, $calledFromTask);
+
+        if ($calledFromTask && !is_null($this->scoreboard)) {
+            $this->scoreboard->display();
+
+            return;
+        }
+
+        $scoreboard = ScoreboardHelper::createDefault($this);
+        $scoreboard->update()->display();
+
+        $this->scoreboard = $scoreboard;
+    }
+
+    /**
+     * @throws ScoreFactoryException
+     */
+    public function close(): void
+    {
+        HelperUtils::destroy($this->player);
+        ScoreFactory::removeObjective($this->player, true);
+    }
 }

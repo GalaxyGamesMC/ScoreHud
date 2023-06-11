@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -40,47 +40,52 @@ use Ifera\ScoreHud\session\PlayerSession;
 use Ifera\ScoreHud\utils\Utils;
 use function array_merge;
 
-class ScoreboardHelper{
+class ScoreboardHelper
+{
 
-	private static function constructTag(PlayerSession $session, string $tagName): ScoreTag{
-		$tag = new ScoreTag($tagName, "");
+    public static function createDefault(PlayerSession $session): Scoreboard
+    {
+        $tags = [];
 
-		$ev = new TagsResolveEvent($session->getPlayer(), $tag);
-		$ev->call();
+        foreach (self::resolveLines($lines = ScoreHudSettings::getDefaultBoard()) as $tagName) {
+            $tags[] = self::constructTag($session, $tagName);
+        }
 
-		return $ev->getTag();
-	}
+        return new Scoreboard($session, $lines, $tags);
+    }
 
-	public static function createDefault(PlayerSession $session): Scoreboard{
-		$tags = [];
+    /**
+     * Separates the tags from the lines and returns all the tag names
+     */
+    public static function resolveLines(array $lines): array
+    {
+        $tags = [];
 
-		foreach(self::resolveLines($lines = ScoreHudSettings::getDefaultBoard()) as $tagName){
-			$tags[] = self::constructTag($session, $tagName);
-		}
+        foreach ($lines as $line) {
+            $tags = array_merge($tags, Utils::resolveTags($line));
+        }
 
-		return new Scoreboard($session, $lines, $tags);
-	}
+        return $tags;
+    }
 
-	public static function create(PlayerSession $session, string $world): Scoreboard{
-		$tags = [];
+    private static function constructTag(PlayerSession $session, string $tagName): ScoreTag
+    {
+        $tag = new ScoreTag($tagName, "");
 
-		foreach(self::resolveLines($lines = ScoreHudSettings::getScoreboard($world)) as $tagName){
-			$tags[] = self::constructTag($session, $tagName);
-		}
+        $ev = new TagsResolveEvent($session->getPlayer(), $tag);
+        $ev->call();
 
-		return new Scoreboard($session, $lines, $tags);
-	}
+        return $ev->getTag();
+    }
 
-	/**
-	 * Separates the tags from the lines and returns all the tag names
-	 */
-	public static function resolveLines(array $lines): array{
-		$tags = [];
+    public static function create(PlayerSession $session, string $world): Scoreboard
+    {
+        $tags = [];
 
-		foreach($lines as $line){
-			$tags = array_merge($tags, Utils::resolveTags($line));
-		}
+        foreach (self::resolveLines($lines = ScoreHudSettings::getScoreboard($world)) as $tagName) {
+            $tags[] = self::constructTag($session, $tagName);
+        }
 
-		return $tags;
-	}
+        return new Scoreboard($session, $lines, $tags);
+    }
 }

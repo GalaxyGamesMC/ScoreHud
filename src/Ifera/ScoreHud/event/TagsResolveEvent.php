@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -50,5 +50,6 @@ namespace Ifera\ScoreHud\event;
  * the update for the tags being called. This works very much the same
  * way as HRKChat.
  */
-class TagsResolveEvent extends PlayerScoreTagEvent{
+class TagsResolveEvent extends PlayerScoreTagEvent
+{
 }

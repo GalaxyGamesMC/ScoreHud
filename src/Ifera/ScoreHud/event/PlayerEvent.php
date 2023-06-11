@@ -1,20 +1,23 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Ifera\ScoreHud\event;
 
 use pocketmine\player\Player;
 
-abstract class PlayerEvent extends ScoreHudEvent{
+abstract class PlayerEvent extends ScoreHudEvent
+{
 
-	public function __construct(
+    public function __construct(
         private readonly Player $player
-    ){
-		parent::__construct();
-	}
+    )
+    {
+        parent::__construct();
+    }
 
-	public function getPlayer(): Player{
-		return $this->player;
-	}
+    public function getPlayer(): Player
+    {
+        return $this->player;
+    }
 }

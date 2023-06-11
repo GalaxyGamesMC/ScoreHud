@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -42,32 +42,37 @@ use Ifera\ScoreHud\scoreboard\ScoreTag;
  *
  * @see ServerTagUpdateEvent
  */
-class ServerTagsUpdateEvent extends ScoreHudEvent{
+class ServerTagsUpdateEvent extends ScoreHudEvent
+{
 
-	/**
-	 * @param ScoreTag[] $tags
-	 */
-	public function __construct(
+    /**
+     * @param ScoreTag[] $tags
+     */
+    public function __construct(
         private array $tags
-    ){
-		parent::__construct();
-	}
+    )
+    {
+        parent::__construct();
+    }
 
-	/**
-	 * @param ScoreTag[] $tags
-	 */
-	public function setTags(array $tags): void{
-		$this->tags = $tags;
-	}
+    /**
+     * @param ScoreTag[] $tags
+     */
+    public function setTags(array $tags): void
+    {
+        $this->tags = $tags;
+    }
 
-	/**
-	 * @return ScoreTag[]
-	 */
-	public function getTags(): array{
-		return $this->tags;
-	}
+    /**
+     * @return ScoreTag[]
+     */
+    public function getTags(): array
+    {
+        return $this->tags;
+    }
 
-	public function addTag(ScoreTag $tag): void{
-		$this->tags[] = $tag;
-	}
+    public function addTag(ScoreTag $tag): void
+    {
+        $this->tags[] = $tag;
+    }
 }

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -49,117 +49,125 @@ use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
 use function is_array;
 
-class ScoreHud extends PluginBase{
-	use SingletonTrait;
+class ScoreHud extends PluginBase
+{
+    use SingletonTrait;
 
-	private const CONFIG_VERSION = 11;
-	private const SCOREHUD_VERSION = 3;
+    private const CONFIG_VERSION = 11;
+    private const SCOREHUD_VERSION = 3;
 
-	private ?Config $scoreConfig = null;
+    private ?Config $scoreConfig = null;
 
-	public function onLoad(): void{
-		self::setInstance($this);
-	}
+    public function onLoad(): void
+    {
+        self::setInstance($this);
+    }
 
-	public function onEnable(): void{
-		$this->loadConfigs();
+    public function onEnable(): void
+    {
+        $this->loadConfigs();
 
-		if(!Utils::validateVirions($this)){
-			return;
-		}
+        if (!Utils::validateVirions($this)) {
+            return;
+        }
 
-		ScoreHudSettings::init($this);
+        ScoreHudSettings::init($this);
 
-		if(!$this->canLoad()){
-			return;
-		}
+        if (!$this->canLoad()) {
+            return;
+        }
 
-		if(ScoreHudSettings::isTimezoneChanged()){
-			if(Utils::setTimezone()){
-				$this->getLogger()->notice("Server timezone successfully set to " . ScoreHudSettings::getTimezone());
-			}else{
-				$this->getLogger()->error("Unable to set timezone. Invalid timezone: " . ScoreHudSettings::getTimezone() . ", provided under 'time.zone' in config.yml.");
-			}
-		}
+        if (ScoreHudSettings::isTimezoneChanged()) {
+            if (Utils::setTimezone()) {
+                $this->getLogger()->notice("Server timezone successfully set to " . ScoreHudSettings::getTimezone());
+            } else {
+                $this->getLogger()->error("Unable to set timezone. Invalid timezone: " . ScoreHudSettings::getTimezone() . ", provided under 'time.zone' in config.yml.");
+            }
+        }
 
-		if(ScoreHudSettings::areFlickeringTitlesEnabled()){
-			$this->getScheduler()->scheduleRepeatingTask(new ScoreUpdateTitleTask($this), ScoreHudSettings::getFlickerRate());
-		}
+        if (ScoreHudSettings::areFlickeringTitlesEnabled()) {
+            $this->getScheduler()->scheduleRepeatingTask(new ScoreUpdateTitleTask($this), ScoreHudSettings::getFlickerRate());
+        }
 
-		$this->getServer()->getPluginManager()->registerEvents(new PlayerSessionHandler(), $this);
-		$this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+        $this->getServer()->getPluginManager()->registerEvents(new PlayerSessionHandler(), $this);
+        $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
 
-		$this->getServer()->getCommandMap()->register("scorehud", new ScoreHudCommand($this));
+        $this->getServer()->getCommandMap()->register("scorehud", new ScoreHudCommand($this));
 
-		if (ScoreHudSettings::isTagFactoryEnabled()) TagsFactory::init($this);
-	}
+        if (ScoreHudSettings::isTagFactoryEnabled()) TagsFactory::init($this);
+    }
 
-	public function onDisable(): void{
-		ScoreHudSettings::destroy();
-		PlayerManager::destroyAll();
-	}
+    private function loadConfigs(): void
+    {
+        $this->saveDefaultConfig();
 
-	private function loadConfigs(): void{
-		$this->saveDefaultConfig();
+        $this->saveResource("scorehud.yml");
+        $this->scoreConfig = new Config($this->getDataFolder() . "scorehud.yml", Config::YAML);
+    }
 
-		$this->saveResource("scorehud.yml");
-		$this->scoreConfig = new Config($this->getDataFolder() . "scorehud.yml", Config::YAML);
-	}
+    private function canLoad(): bool
+    {
+        $load = true;
+        $errors = [];
 
-	private function canLoad(): bool{
-		$load = true;
-		$errors = [];
+        if (!ScoreHudSettings::isMultiWorld() && empty(ScoreHudSettings::getDefaultBoard())) {
+            $load = false;
+            $errors[] = "Please set the lines under 'default-board' properly, in scorehud.yml.";
+        }
 
-		if(!ScoreHudSettings::isMultiWorld() && empty(ScoreHudSettings::getDefaultBoard())){
-			$load = false;
-			$errors[] = "Please set the lines under 'default-board' properly, in scorehud.yml.";
-		}
+        if (ScoreHudSettings::useDefaultBoard() && empty(ScoreHudSettings::getDefaultBoard())) {
+            $load = false;
+            $errors[] = "Please set the lines under 'default-board' properly, in scorehud.yml.";
+        }
 
-		if(ScoreHudSettings::useDefaultBoard() && empty(ScoreHudSettings::getDefaultBoard())){
-			$load = false;
-			$errors[] = "Please set the lines under 'default-board' properly, in scorehud.yml.";
-		}
+        if (ScoreHudSettings::areFlickeringTitlesEnabled() && empty(ScoreHudSettings::getTitles())) {
+            $load = false;
+            $errors[] = "Please set the lines under 'titles.lines' properly, in scorehud.yml.";
+        }
 
-		if(ScoreHudSettings::areFlickeringTitlesEnabled() && empty(ScoreHudSettings::getTitles())){
-			$load = false;
-			$errors[] = "Please set the lines under 'titles.lines' properly, in scorehud.yml.";
-		}
+        if (!is_array($this->getConfig()->get("disabled-worlds", []))) {
+            $load = false;
+            $errors[] = "The 'disabled-worlds' key in config.yml must be of the type array. Please set it properly.";
+        }
 
-		if(!is_array($this->getConfig()->get("disabled-worlds", []))){
-			$load = false;
-			$errors[] = "The 'disabled-worlds' key in config.yml must be of the type array. Please set it properly.";
-		}
+        if (!$load) {
+            foreach ($errors as $error) {
+                $this->getLogger()->error($error);
+            }
 
-		if(!$load){
-			foreach($errors as $error){
-				$this->getLogger()->error($error);
-			}
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+        }
 
-			$this->getServer()->getPluginManager()->disablePlugin($this);
-		}
+        return $load;
+    }
 
-		return $load;
-	}
+    public function onDisable(): void
+    {
+        ScoreHudSettings::destroy();
+        PlayerManager::destroyAll();
+    }
 
-	public function getScoreConfig(): Config{
-		return $this->scoreConfig;
-	}
+    public function getScoreConfig(): Config
+    {
+        return $this->scoreConfig;
+    }
 
     /**
      * @throws ScoreFactoryException
      */
-    public function setScore(Player $player, bool $calledFromTask): void{
-		if(!$player->isOnline()){
-			return;
-		}
+    public function setScore(Player $player, bool $calledFromTask): void
+    {
+        if (!$player->isOnline()) {
+            return;
+        }
 
-		if(HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())){
-			ScoreFactory::removeObjective($player);
+        if (HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())) {
+            ScoreFactory::removeObjective($player);
 
-			return;
-		}
+            return;
+        }
 
-		ScoreFactory::setObjective($player, TitleUtils::getTitle($calledFromTask));
-		ScoreFactory::sendObjective($player);
-	}
+        ScoreFactory::setObjective($player, TitleUtils::getTitle($calledFromTask));
+        ScoreFactory::sendObjective($player);
+    }
 }

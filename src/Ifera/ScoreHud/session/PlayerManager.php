@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -37,56 +37,63 @@ namespace Ifera\ScoreHud\session;
 use jackmd\scorefactory\ScoreFactoryException;
 use pocketmine\player\Player;
 
-class PlayerManager{
+class PlayerManager
+{
 
-	/** @var PlayerSession[] */
-	private static $sessions = [];
-
-    /**
-     * @throws ScoreFactoryException
-     */
-    public static function create(Player $player): void{
-		self::$sessions[$player->getUniqueId()->toString()] = $session = new PlayerSession($player);
-		$session->handle();
-	}
+    /** @var PlayerSession[] */
+    private static $sessions = [];
 
     /**
      * @throws ScoreFactoryException
      */
-    public static function destroy(Player $player): void{
-		if(!$player->isOnline()){
-			return;
-		}
+    public static function create(Player $player): void
+    {
+        self::$sessions[$player->getUniqueId()->toString()] = $session = new PlayerSession($player);
+        $session->handle();
+    }
 
-		if(!isset(self::$sessions[$uuid = $player->getUniqueId()->toString()])){
-			return;
-		}
+    public static function get(Player $player): ?PlayerSession
+    {
+        return self::$sessions[$player->getUniqueId()->toString()] ?? null;
+    }
 
-		self::$sessions[$uuid]->close();
-		unset(self::$sessions[$uuid]);
-	}
+    public static function getNonNull(Player $player): PlayerSession
+    {
+        return self::$sessions[$player->getUniqueId()->toString()];
+    }
 
-	public static function get(Player $player): ?PlayerSession{
-		return self::$sessions[$player->getUniqueId()->toString()] ?? null;
-	}
-
-	public static function getNonNull(Player $player): PlayerSession{
-		return self::$sessions[$player->getUniqueId()->toString()];
-	}
-
-	/**
-	 * @return PlayerSession[]
-	 */
-	public static function getAll(): array{
-		return self::$sessions;
-	}
+    /**
+     * @return PlayerSession[]
+     */
+    public static function getAll(): array
+    {
+        return self::$sessions;
+    }
 
     /**
      * @throws ScoreFactoryException
      */
-    public static function destroyAll(): void{
-		foreach(self::$sessions as $session){
-			self::destroy($session->getPlayer());
-		}
-	}
+    public static function destroyAll(): void
+    {
+        foreach (self::$sessions as $session) {
+            self::destroy($session->getPlayer());
+        }
+    }
+
+    /**
+     * @throws ScoreFactoryException
+     */
+    public static function destroy(Player $player): void
+    {
+        if (!$player->isOnline()) {
+            return;
+        }
+
+        if (!isset(self::$sessions[$uuid = $player->getUniqueId()->toString()])) {
+            return;
+        }
+
+        self::$sessions[$uuid]->close();
+        unset(self::$sessions[$uuid]);
+    }
 }

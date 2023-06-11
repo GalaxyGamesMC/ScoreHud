@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -45,69 +45,77 @@ use pocketmine\event\Listener;
 use pocketmine\player\Player;
 use function is_null;
 
-class EventListener implements Listener {
+class EventListener implements Listener
+{
 
-	public function onWorldChange(EntityTeleportEvent $event): void {
-		if (!ScoreHudSettings::isMultiWorld()) {
-			return;
-		}
+    public function onWorldChange(EntityTeleportEvent $event): void
+    {
+        if (!ScoreHudSettings::isMultiWorld()) {
+            return;
+        }
 
-		$from = $event->getFrom();
-		$to = $event->getTo();
+        $from = $event->getFrom();
+        $to = $event->getTo();
 
-		if ($from->getWorld()->getFolderName() === $to->getWorld()->getFolderName()) {
-			return;
-		}
+        if ($from->getWorld()->getFolderName() === $to->getWorld()->getFolderName()) {
+            return;
+        }
 
-		$player = $event->getEntity();
+        $player = $event->getEntity();
 
-		if (!$player instanceof Player or !$player->spawned) {
-			return;
-		}
+        if (!$player instanceof Player or !$player->spawned) {
+            return;
+        }
 
-		PlayerManager::getNonNull($player)->handle($to->getWorld()->getFolderName());
-	}
+        PlayerManager::getNonNull($player)->handle($to->getWorld()->getFolderName());
+    }
 
-	public function onServerTagUpdate(ServerTagUpdateEvent $event): void {
-		$this->updateServerTag($event->getTag());
-	}
+    public function onServerTagUpdate(ServerTagUpdateEvent $event): void
+    {
+        $this->updateServerTag($event->getTag());
+    }
 
-	public function onServerTagsUpdate(ServerTagsUpdateEvent $event): void {
-		foreach ($event->getTags() as $tag) {
-			$this->updateServerTag($tag);
-		}
-	}
+    private function updateServerTag(ScoreTag $tag): void
+    {
+        foreach (PlayerManager::getAll() as $session) {
+            $this->updateTag($session->getPlayer(), $tag);
+        }
+    }
 
-	public function onPlayerTagUpdate(PlayerTagUpdateEvent $event): void {
-		$this->updateTag($event->getPlayer(), $event->getTag());
-	}
+    private function updateTag(Player $player, ScoreTag $newTag): void
+    {
+        if (
+            !$player->isOnline() ||
+            ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName()) ||
+            is_null($session = PlayerManager::get($player)) ||
+            is_null($scoreboard = $session->getScoreboard()) ||
+            is_null($scoreTag = $scoreboard->getTag($newTag->getName()))
+        ) {
+            return;
+        }
 
-	public function onPlayerTagsUpdate(PlayerTagsUpdateEvent $event): void {
-		foreach ($event->getTags() as $tag) {
-			$this->updateTag($event->getPlayer(), $tag);
-		}
-	}
+        $scoreTag->setValue($newTag->getValue());
 
-	private function updateServerTag(ScoreTag $tag): void {
-		foreach (PlayerManager::getAll() as $session) {
-			$this->updateTag($session->getPlayer(), $tag);
-		}
-	}
+        if (ScoreHudSettings::isSingleLineUpdateMode()) $scoreboard->handleSingleTagUpdate($scoreTag);
+        else $scoreboard->update()->display();
+    }
 
-	private function updateTag(Player $player, ScoreTag $newTag): void {
-		if (
-			!$player->isOnline() ||
-			ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName()) ||
-			is_null($session = PlayerManager::get($player)) ||
-			is_null($scoreboard = $session->getScoreboard()) ||
-			is_null($scoreTag = $scoreboard->getTag($newTag->getName()))
-		) {
-			return;
-		}
+    public function onServerTagsUpdate(ServerTagsUpdateEvent $event): void
+    {
+        foreach ($event->getTags() as $tag) {
+            $this->updateServerTag($tag);
+        }
+    }
 
-		$scoreTag->setValue($newTag->getValue());
+    public function onPlayerTagUpdate(PlayerTagUpdateEvent $event): void
+    {
+        $this->updateTag($event->getPlayer(), $event->getTag());
+    }
 
-		if (ScoreHudSettings::isSingleLineUpdateMode()) $scoreboard->handleSingleTagUpdate($scoreTag);
-		else $scoreboard->update()->display();
-	}
+    public function onPlayerTagsUpdate(PlayerTagsUpdateEvent $event): void
+    {
+        foreach ($event->getTags() as $tag) {
+            $this->updateTag($event->getPlayer(), $tag);
+        }
+    }
 }

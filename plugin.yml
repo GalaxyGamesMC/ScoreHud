@@ -6,8 +6,8 @@ author: Ifera
 description: Add fully customizable scoreboards to your server.
 
 virions:
-- ScoreFactory
-- ConfigUpdater
+  - ScoreFactory
+  - ConfigUpdater
 
 permissions:
   sh.command.sh:

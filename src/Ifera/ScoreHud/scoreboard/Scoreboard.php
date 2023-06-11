@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -48,178 +48,193 @@ use function str_repeat;
 use function str_replace;
 use function strlen;
 
-class Scoreboard{
+class Scoreboard
+{
 
-	/** @var string[] */
-	private array $formattedLines = [];
+    /** @var string[] */
+    private array $formattedLines = [];
 
-	public function __construct(
-		private readonly PlayerSession $session,
-		private array                  $lines = [],
-		private array                  $tags = []
-	) {}
+    public function __construct(
+        private readonly PlayerSession $session,
+        private array                  $lines = [],
+        private array                  $tags = []
+    )
+    {
+    }
 
-	public function getSession(): PlayerSession{
-		return $this->session;
-	}
+    public function getSession(): PlayerSession
+    {
+        return $this->session;
+    }
 
-	/**
-	 * @return string[]
-	 */
-	public function getLines(): array{
-		return $this->lines;
-	}
+    /**
+     * @return string[]
+     */
+    public function getLines(): array
+    {
+        return $this->lines;
+    }
 
-	/**
-	 * Returns the line containing the particular tag on the scoreboard.
-	 */
-	public function getLineOfTag(ScoreTag $tag): int {
-		foreach ($this->lines as $index => $line){
-			if (trim($line) === "") continue;
-			if (str_contains($line, $tag->getId())) return $index;
-		}
+    /**
+     * @return ScoreTag[]
+     */
+    public function getTags(): array
+    {
+        return $this->tags;
+    }
 
-		return -1;
-	}
+    public function setTags(array $tags): void
+    {
+        $this->tags = $tags;
+    }
 
-	public function getLine(int $index): string {
-		return (string) $this->lines[$index];
-	}
+    public function getTag(string $name, &$index = null): ?ScoreTag
+    {
+        $tag = null;
 
-	/**
-	 * @return ScoreTag[]
-	 */
-	public function getTags(): array{
-		return $this->tags;
-	}
+        foreach ($this->tags as $key => $scoreTag) {
+            if ($scoreTag->getName() === $name || $scoreTag->getId() === $name) {
+                $tag = $scoreTag;
+                $index = $key;
+                break;
+            }
+        }
 
-	public function setTags(array $tags): void{
-		$this->tags = $tags;
-	}
+        return $tag;
+    }
 
-	public function getTag(string $name, &$index = null): ?ScoreTag{
-		$tag = null;
-
-		foreach($this->tags as $key => $scoreTag){
-			if($scoreTag->getName() === $name || $scoreTag->getId() === $name){
-				$tag = $scoreTag;
-				$index = $key;
-				break;
-			}
-		}
-
-		return $tag;
-	}
-
-	public function setTag(int $index, ScoreTag $tag): void{
-		$this->tags[$index] = $tag;
-	}
-
-	/**
-	 * Returns tags used by the scoreboard indexed by their
-	 * id followed by its value.
-	 */
-	public function getProcessedTags(): array{
-		$processedTags = [];
-
-		foreach($this->tags as $tag){
-			$processedTags[$tag->getId()] = $tag->getValue();
-		}
-
-		return $processedTags;
-	}
+    public function setTag(int $index, ScoreTag $tag): void
+    {
+        $this->tags[$index] = $tag;
+    }
 
     /**
      * @throws ScoreFactoryException
      */
-    public function handleSingleTagUpdate(ScoreTag $tag): self{
-		$player = $this->session->getPlayer();
+    public function handleSingleTagUpdate(ScoreTag $tag): self
+    {
+        $player = $this->session->getPlayer();
 
-		if(!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())){
-			return $this;
-		}
+        if (!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())) {
+            return $this;
+        }
 
-		$tags = $this->getProcessedTags();
-		$index = $this->getLineOfTag($tag);
-		$line = $this->getLine($index);
+        $tags = $this->getProcessedTags();
+        $index = $this->getLineOfTag($tag);
+        $line = $this->getLine($index);
 
-		$line = str_replace(
-			array_keys($tags),
-			array_values($tags),
-			$line
-		);
+        $line = str_replace(
+            array_keys($tags),
+            array_values($tags),
+            $line
+        );
 
-		$this->formattedLines[$index] = " " . $line . " ";
+        $this->formattedLines[$index] = " " . $line . " ";
 
-		ScoreFactory::sendLine($player, $index + 1, ScoreFactory::setScoreLine($player, $index + 1, $this->formattedLines[$index]));
+        ScoreFactory::sendLine($player, $index + 1, ScoreFactory::setScoreLine($player, $index + 1, $this->formattedLines[$index]));
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function update(): self{
-		$player = $this->session->getPlayer();
+    /**
+     * Returns tags used by the scoreboard indexed by their
+     * id followed by its value.
+     */
+    public function getProcessedTags(): array
+    {
+        $processedTags = [];
 
-		if(!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())){
-			return $this;
-		}
+        foreach ($this->tags as $tag) {
+            $processedTags[$tag->getId()] = $tag->getValue();
+        }
 
-		$i = 0;
-		$tags = $this->getProcessedTags();
-		$duplicateLines = [];
+        return $processedTags;
+    }
 
-		foreach($this->lines as $index => $line){
-			$i++;
+    /**
+     * Returns the line containing the particular tag on the scoreboard.
+     */
+    public function getLineOfTag(ScoreTag $tag): int
+    {
+        foreach ($this->lines as $index => $line) {
+            if (trim($line) === "") continue;
+            if (str_contains($line, $tag->getId())) return $index;
+        }
 
-			if($i > 15){
-				break;
-			}
+        return -1;
+    }
 
-			if($line === ""){
-				$this->lines[$index] = " ";
-				$line = " ";
-			}
+    public function getLine(int $index): string
+    {
+        return (string)$this->lines[$index];
+    }
 
-			if(array_count_values($this->lines)[$line] > 1){
-				$duplicateLines[] = $line;
-				$line = $line . str_repeat(" ", array_count_values($duplicateLines)[$line]);
-			}
+    public function update(): self
+    {
+        $player = $this->session->getPlayer();
 
-			$line = " " . $line . (max(array_map("strlen", $this->lines)) === strlen($line) ? " " : "") . " ";
+        if (!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())) {
+            return $this;
+        }
 
-			$this->formattedLines[$index] = str_replace(
-				array_keys($tags),
-				array_values($tags),
-				$line
-			);
-		}
+        $i = 0;
+        $tags = $this->getProcessedTags();
+        $duplicateLines = [];
 
-		return $this;
-	}
+        foreach ($this->lines as $index => $line) {
+            $i++;
+
+            if ($i > 15) {
+                break;
+            }
+
+            if ($line === "") {
+                $this->lines[$index] = " ";
+                $line = " ";
+            }
+
+            if (array_count_values($this->lines)[$line] > 1) {
+                $duplicateLines[] = $line;
+                $line = $line . str_repeat(" ", array_count_values($duplicateLines)[$line]);
+            }
+
+            $line = " " . $line . (max(array_map("strlen", $this->lines)) === strlen($line) ? " " : "") . " ";
+
+            $this->formattedLines[$index] = str_replace(
+                array_keys($tags),
+                array_values($tags),
+                $line
+            );
+        }
+
+        return $this;
+    }
 
     /**
      * @throws ScoreFactoryException
      */
-    public function display(): self{
-		$player = $this->session->getPlayer();
+    public function display(): self
+    {
+        $player = $this->session->getPlayer();
 
-		if(!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())){
-			return $this;
-		}
+        if (!$player->isOnline() || HelperUtils::isDisabled($player) || ScoreHudSettings::isInDisabledWorld($player->getWorld()->getFolderName())) {
+            return $this;
+        }
 
-		$i = 0;
+        $i = 0;
 
-		foreach($this->formattedLines as $formattedLine){
-			$i++;
+        foreach ($this->formattedLines as $formattedLine) {
+            $i++;
 
-			if($i > 15){
-				break;
-			}
+            if ($i > 15) {
+                break;
+            }
 
-			ScoreFactory::setScoreLine($player, $i, $formattedLine);
-		}
+            ScoreFactory::setScoreLine($player, $i, $formattedLine);
+        }
 
-		ScoreFactory::sendLines($player);
+        ScoreFactory::sendLines($player);
 
-		return $this;
-	}
+        return $this;
+    }
 }

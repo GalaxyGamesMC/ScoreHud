@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  *     _____                    _   _           _
@@ -37,16 +37,19 @@ namespace Ifera\ScoreHud\event;
 use Ifera\ScoreHud\ScoreHud;
 use pocketmine\event\Event;
 
-abstract class ScoreHudEvent extends Event{
+abstract class ScoreHudEvent extends Event
+{
 
-	/** @var ScoreHud|null */
-	protected ?ScoreHud $plugin = null;
+    /** @var ScoreHud|null */
+    protected ?ScoreHud $plugin = null;
 
-	public function __construct(){
-		$this->plugin = ScoreHud::getInstance();
-	}
+    public function __construct()
+    {
+        $this->plugin = ScoreHud::getInstance();
+    }
 
-	public function getPlugin(): ?ScoreHud{
-		return $this->plugin;
-	}
+    public function getPlugin(): ?ScoreHud
+    {
+        return $this->plugin;
+    }
 }

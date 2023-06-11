@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Ifera\ScoreHud\factory\listener;
 
@@ -15,19 +15,23 @@ use function explode;
 use function number_format;
 use function round;
 
-class TagResolveListener implements Listener {
+class TagResolveListener implements Listener
+{
 
-	public function __construct(
-		private readonly ScoreHud $plugin
-	) {}
+    public function __construct(
+        private readonly ScoreHud $plugin
+    )
+    {
+    }
 
-	public function onTagResolve(TagsResolveEvent $event) {
-		$player = $event->getPlayer();
-		$tag = $event->getTag();
-		$tags = explode('.', $tag->getName(), 2);
-		$value = "";
+    public function onTagResolve(TagsResolveEvent $event)
+    {
+        $player = $event->getPlayer();
+        $tag = $event->getTag();
+        $tags = explode('.', $tag->getName(), 2);
+        $value = "";
 
-		if ($tags[0] !== 'scorehud' || count($tags) < 2) return;
+        if ($tags[0] !== 'scorehud' || count($tags) < 2) return;
 
         $value = match ($tags[1]) {
             "name", "real_name" => $player->getName(),
@@ -59,16 +63,16 @@ class TagResolveListener implements Listener {
             default => null
         };
 
-		if (ScoreHudSettings::areMemoryTagsEnabled()) {
-			$rUsage = Process::getRealMemoryUsage();
-			$mUsage = Process::getAdvancedMemoryUsage();
+        if (ScoreHudSettings::areMemoryTagsEnabled()) {
+            $rUsage = Process::getRealMemoryUsage();
+            $mUsage = Process::getAdvancedMemoryUsage();
 
-			$globalMemory = "MAX";
-			if ($this->plugin->getServer()->getConfigGroup()->getProperty("memory.global-limit") > 0) {
-				$globalMemory = number_format(round($this->plugin->getServer()->getConfigGroup()->getProperty("memory.global-limit"), 2), 2) . " MB";
-			}
+            $globalMemory = "MAX";
+            if ($this->plugin->getServer()->getConfigGroup()->getProperty("memory.global-limit") > 0) {
+                $globalMemory = number_format(round($this->plugin->getServer()->getConfigGroup()->getProperty("memory.global-limit"), 2), 2) . " MB";
+            }
 
-			$value = match ($tags[1]) {
+            $value = match ($tags[1]) {
                 "memory_main_thread" => number_format(round(($mUsage[0] / 1024) / 1024, 2), 2) . " MB",
                 "memory_total" => number_format(round(($mUsage[1] / 1024) / 1024, 2), 2) . " MB",
                 "memory_virtual" => number_format(round(($mUsage[2] / 1024) / 1024, 2), 2) . " MB",
@@ -76,8 +80,8 @@ class TagResolveListener implements Listener {
                 "memory_global" => $globalMemory,
                 default => null, // or handle the case when the tag is not recognized
             };
-		}
+        }
 
-		$tag->setValue((string) $value);
-	}
+        $tag->setValue((string)$value);
+    }
 }
